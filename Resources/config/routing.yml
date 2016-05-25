@@ -1,3 +1,32 @@
-arii_blockly_homepage:
-    path:     /hello/{name}
+arii_Blockly_index:
+    pattern:  /
     defaults: { _controller: AriiBlocklyBundle:Default:index }
+
+arii_Blockly_readme:
+    pattern:  /readme
+    defaults: { _controller: AriiBlocklyBundle:Default:readme }
+
+json_Blockly_ribbon:
+    pattern:  /ribbon.json
+    defaults: { _controller: AriiBlocklyBundle:Default:ribbon }
+
+xml_Blockly_toolbar:
+    pattern:  /toolbar.xml
+    defaults: { _controller: AriiBlocklyBundle:Default:toolbar }
+
+xml_Blockly_list:
+    pattern:  /list.xml
+    defaults: { _controller: AriiBlocklyBundle:Default:list }
+
+xml_Blockly_get:
+    pattern:  /get.xml
+    defaults: { _controller: AriiBlocklyBundle:Default:get }
+
+arii_Blockly_save:
+    pattern:  /save
+    defaults: { _controller: AriiBlocklyBundle:Default:save }
+
+arii_Blockly_generate:
+    pattern:  /generate
+    defaults: { _controller: AriiBlocklyBundle:Default:generate }
+

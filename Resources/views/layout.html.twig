@@ -1,0 +1,43 @@
+{% extends "AriiCoreBundle::base.html.twig" %}
+{% block dhtmlx %}
+<link rel="stylesheet" type="text/css" href="{{ asset('dhtmlx/skins/terrace/dhtmlx.css') }}" />
+<script src="{{ asset('dhtmlx/codebase/dhtmlx.js') }}" type="text/javascript"></script>
+{% endblock dhtmlx %}
+{% block dhtmlx_plus %}
+<script src="{{ asset('blockly/blockly_compressed.js') }}"></script>
+<script src="{{ asset('blockly/blocks_compressed.js') }}"></script>
+<script src="{{ asset('blockly/javascript_compressed.js') }}"></script>
+<script src="{{ asset('blockly/php_compressed.js') }}"></script>
+<script src="{{ asset('blockly/msg/js/fr.js') }}"></script>
+<style>
+#blocklyArea {
+  height: 99%;
+}
+#blocklyDiv {
+  height: 99%;
+}
+</style>
+{% endblock dhtmlx_plus %}
+{% block body %}
+{% endblock body %}
+{% block script %}
+<script>
+function StateRibbon (itemid,state) {
+    switch(itemid) {
+        default:
+            alert(itemid);
+    }
+    GlobalRefresh();    
+}
+
+function ClickRibbon (itemid,state) {
+    switch(itemid) {
+    case 'index':
+        window.location = "{{ url('arii_Blockly_index') }}";
+        break;
+    default:
+        window.location = "{{ url('arii_Blockly_index') }}"+itemid;
+    }
+}
+</script>
+{% endblock script %}

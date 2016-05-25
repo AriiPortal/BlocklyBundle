@@ -1,0 +1,3 @@
+module.Blockly: Blockly
+summary.Blockly: Module de conception graphique basé sur Blockly.
+text.Blockly: Blockly est un projet Google qui offre une interface de type scratch en Javascript.

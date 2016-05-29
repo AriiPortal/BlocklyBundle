@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Blockly Demo: Resizable Blockly (Part 2)</title>
+  <script src="blockly_compressed.js"></script>
+  <script src="blocks_compressed.js"></script>
+    <script src="jobscheduler_compressed.js"></script>
+  <script src="msg/js/en.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+    table {
+      height: 100%;
+      width: 100%;
+    }
+    #blocklyArea {
+      height: 99%;
+    }
+  </style>
+</head>
+<body>
+  <table width="100%">
+    <tr>
+      <td id="blocklyArea"width="50%"></td>
+      <td id="SchedulerArea" valign="top"></td>
+    </tr>
+	
+  </table>
+
+  <div id="blocklyDiv" style="position: absolute"></div>
+    <xml id="toolbox" style="display: none">
+    <category name="Job" colour="20">
+      <block type="job"></block>
+      <block type="standalone"></block>
+    </category>
+    <category name="Job Chain" colour="65">
+      <block type="job_chain"></block>
+      <block type="job_chain_node"></block>
+    </category>
+    <category name="Job Chain Order" colour="120">
+      <block type="job_chain_order"></block>
+    </category>
+    <category name="Process Class" colour="210">
+    </category>
+    <category name="Schedule"colour="290">
+    </category>
+    <category name="Lock"colour="330">
+    </category>
+	
+    <category name="Logic">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_null"></block>
+    </category>
+    <category name="Variables" custom="VARIABLE"></category>
+    <category name="Functions" custom="PROCEDURE"></category>
+  </xml>
+<script>
+    var blocklyArea = document.getElementById('blocklyArea');
+    var blocklyDiv = document.getElementById('blocklyDiv');
+	var workspace = Blockly.inject('blocklyDiv',
+    {toolbox: document.getElementById('toolbox'),
+     zoom:
+         {controls: true,
+          wheel: true,
+          startScale: 1.0,
+          maxScale: 3,
+          minScale: 0.3,
+          scaleSpeed: 1.2},
+     trashcan: true});
+
+	 var onresize = function(e) {
+      // Compute the absolute coordinates and dimensions of blocklyArea.
+      var element = blocklyArea;
+      var x = 0;
+      var y = 0;
+      do {
+        x += element.offsetLeft;
+        y += element.offsetTop;
+        element = element.offsetParent;
+      } while (element);
+      // Position blocklyDiv over blocklyArea.
+      blocklyDiv.style.left = x + 'px';
+      blocklyDiv.style.top = y + 'px';
+      blocklyDiv.style.width = blocklyArea.offsetWidth + 'px';
+      blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
+    };
+    window.addEventListener('resize', onresize, false);
+    onresize();
+
+// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#57d2fv
+Blockly.Blocks['job'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("Job")
+        .appendField(new Blockly.FieldTextInput("default"), "NAME");
+    this.appendValueInput("DESCRIPTION")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("description")
+        .appendField(new Blockly.FieldTextInput("default"), "DESCRIPTION");
+    this.appendValueInput("SCRIPT")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("script")
+        .appendField(new Blockly.FieldTextInput(""), "SCRIPT");
+    this.appendStatementInput("LOCKS")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("locks");
+    this.appendStatementInput("PARAMS")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("params");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(20);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/job.xml');
+  }
+};
+
+Blockly.JobScheduler['job'] = function(block) {
+  var text_name = block.getFieldValue('NAME');
+  var text_description = block.getFieldValue('DESCRIPTION');
+  var value_description = Blockly.JobScheduler.valueToCode(block, 'DESCRIPTION', Blockly.JobScheduler.ORDER_ATOMIC);
+  var text_script = block.getFieldValue('SCRIPT');
+  var value_script = Blockly.JobScheduler.valueToCode(block, 'SCRIPT', Blockly.JobScheduler.ORDER_ATOMIC);
+  var statements_locks = Blockly.JobScheduler.statementToCode(block, 'LOCKS');
+  var statements_params = Blockly.JobScheduler.statementToCode(block, 'PARAMS');
+  // TODO: Assemble JavaScript into code variable.
+  var code = '\n<job name="'+text_name+'" order="yes"\n';
+		code += '</job>\n';
+  return code;
+};
+
+// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#5o52f7
+Blockly.Blocks['standalone'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("Job")
+        .appendField(new Blockly.FieldTextInput("default"), "NAME");
+    this.appendValueInput("DESCRIPTION")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("description")
+        .appendField(new Blockly.FieldTextInput("default"), "DESCRIPTION");
+    this.appendValueInput("SCRIPT")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("script")
+        .appendField(new Blockly.FieldTextInput(""), "SCRIPT");
+    this.appendStatementInput("LOCKS")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("locks");
+    this.appendStatementInput("PARAMS")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("params");
+    this.setColour(20);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+Blockly.JobScheduler['standalone'] = function(block) {
+  var text_name = block.getFieldValue('NAME');
+  var text_description = block.getFieldValue('DESCRIPTION');
+  var value_description = Blockly.JobScheduler.valueToCode(block, 'DESCRIPTION', Blockly.JobScheduler.ORDER_ATOMIC);
+  var text_script = block.getFieldValue('SCRIPT');
+  var value_script = Blockly.JobScheduler.valueToCode(block, 'SCRIPT', Blockly.JobScheduler.ORDER_ATOMIC);
+  var statements_locks = Blockly.JobScheduler.statementToCode(block, 'LOCKS');
+  var statements_params = Blockly.JobScheduler.statementToCode(block, 'PARAMS');
+  // TODO: Assemble JobScheduler into code variable.
+  var code = '...;\n';
+  return code;
+};
+
+// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#g6bsxw
+Blockly.Blocks['job_chain'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("job_chain")
+        .appendField(new Blockly.FieldTextInput("job_chain"), "name");
+    this.appendStatementInput("file_order_source")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("file_order_source");
+    this.appendStatementInput("NODES")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("nodes");
+    this.appendStatementInput("NAME")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("job_chain_nodes");
+    this.setColour(65);		
+    this.setTooltip('');
+    this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/job_chain.xml');
+  }
+};
+
+Blockly.JobScheduler['job_chain'] = function(block) {
+  var text_name = block.getFieldValue('name');
+  var statements_file_order_source = Blockly.JobScheduler.statementToCode(block, 'file_order_source');
+  var statements_nodes = Blockly.JobScheduler.statementToCode(block, 'NODES');
+  var statements_name = Blockly.JobScheduler.statementToCode(block, 'NAME');
+  // TODO: Assemble JavaScript into code variable.
+  var code = '\n<job_chain name="'+text_name+'"\n';
+	code += '>\n';
+	code += statements_nodes;
+	code += '</job_chain>\n';
+  return code;
+};
+
+// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#h3pm3t
+Blockly.Blocks['job_chain_node'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("state")
+        .appendField(new Blockly.FieldTextInput("state"), "STATE");
+    this.appendStatementInput("JOBS")
+        .setCheck(null);
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("next_state")
+        .appendField(new Blockly.FieldTextInput(""), "NEXT_STATE");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("error_state")
+        .appendField(new Blockly.FieldTextInput(""), "ERROR_STATE");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour(65);
+    this.setTooltip('');
+    this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/job_chain.xml#element_job_chain_node');
+  }
+};
+
+Blockly.JobScheduler['job_chain_node'] = function(block) {
+  var text_state = block.getFieldValue('STATE');
+  var statements_jobs = Blockly.JobScheduler.statementToCode(block, 'JOBS');
+  var text_next_state = block.getFieldValue('NEXT_STATE');
+  var text_error_state = block.getFieldValue('ERROR_STATE');
+  // TODO: Assemble JavaScript into code variable.
+  var code = '<job_chain_node state="'+text_state+'">\n';
+		code += statements_jobs;
+		code += '</job_chain_nodes>\n';
+  return code;
+};
+	
+function myUpdateFunction(event) {
+  var code = Blockly.JobScheduler.workspaceToCode(workspace);
+  code = code.replace(/</g, "&lt;"); 
+  code = code.replace(/\n/g, "<br/>"); 
+  code = code.replace(/ /g, "&nbsp;"); 
+  document.getElementById('SchedulerArea').innerHTML  = code;
+}
+workspace.addChangeListener(myUpdateFunction);
+
+</script>
+</body>
+</html>

@@ -162,6 +162,7 @@ class Gen_compressed(threading.Thread):
     self.gen_core()
     self.gen_blocks()
     self.gen_generator("autosys")
+    self.gen_generator("jobscheduler")
 
   def gen_core(self):
     target_filename = "blockly_compressed.js"

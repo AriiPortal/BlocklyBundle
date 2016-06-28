@@ -30,3 +30,13 @@ arii_Blockly_generate:
     pattern:  /generate
     defaults: { _controller: AriiBlocklyBundle:Default:generate }
 
+# CHECK 
+
+arii_Blockly_check:
+    pattern:  /check
+    defaults: { _controller: AriiBlocklyBundle:Default:check }
+
+xml_Blockly_toolbar_check:
+    pattern:  /toolbar_check.xml
+    defaults: { _controller: AriiBlocklyBundle:Default:toolbar_check }
+

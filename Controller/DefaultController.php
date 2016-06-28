@@ -15,7 +15,20 @@ class DefaultController extends Controller
     
     public function ribbonAction()
     {
-        return $this->render('AriiBlocklyBundle:Default:ribbon.json.twig' );
+        $folder = $this->container->get('arii_core.folder');
+        $session = $this->container->get('arii_core.session');
+        $engine = $session->getSpoolerByName('arii');
+        if (isset($engine[0]['shell']['data'])) {
+            $config = $engine[0]['shell']['data'].'/config';
+            $Dir = $folder->Remotes("$config/remote");
+        }
+        else {
+            $Dir = array();
+        }
+        
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/json');
+        return $this->render('AriiBlocklyBundle:Default:ribbon.json.twig',array('Schedulers' => $Dir), $response);
     }
 
     public function readmeAction()
@@ -30,6 +43,13 @@ class DefaultController extends Controller
         return $this->render('AriiBlocklyBundle:Default:toolbar.xml.twig',array(), $response );
     }
 
+    public function toolbar_checkAction()
+    {
+        $response = new Response();
+        $response->headers->set('Content-Type', 'text/xml');
+        return $this->render('AriiBlocklyBundle:Default:toolbar_check.xml.twig',array(), $response );
+    }
+
     public function saveAction()
     {
         $request = Request::createFromGlobals();
@@ -37,10 +57,13 @@ class DefaultController extends Controller
         if ($name=='')
             $name = 'saved';
         $xml = $request->get('xml');        
+        $code = $request->get('code');    
         
         $file = $this->container->getParameter('workspace').'/Blockly/'.$name.".xml";
         if (file_put_contents($file,$xml)) {
             print $name;
+            $file = $this->container->getParameter('workspace').'/Blockly/'.$name.".code";
+            file_put_contents($file,$code);            
         }
         else {
             print "ERROR!";
@@ -48,6 +71,37 @@ class DefaultController extends Controller
         exit();
     }
 
+    public function checkAction()
+    {
+        $request = Request::createFromGlobals();
+        $code = $request->get('code');
+        print $this->split($code,'C:\Program Files\jobscheduler\pgsql\scheduler_data\config\live\blockly');        
+        exit();        
+    }
+    
+    public function split($code,$target) {
+        $txt = $msg = '';        
+        foreach (explode("\n",$code) as $l) {
+            if (($p=strpos($l,'<!--START['))!==false) {
+                $p += 10;
+                $e=strpos($l,']-->',$p);
+                $name = substr($l,$p,$e-$p);
+                $msg .= "$name</br>";
+                $txt = '';
+            }
+            elseif (($p=strpos($l,'<!--END['))!==false) {
+                $p += 10;
+                $e=strpos($l,']-->',$p);
+                $end = substr($l,$p,$e-$p); # verification ?                
+                file_put_contents("$target/$name",$txt);
+            }
+            else {
+                $txt .= trim($l)."\n";
+            }
+        }
+        return $msg;
+    }
+            
     public function getAction()
     {
         $request = Request::createFromGlobals();

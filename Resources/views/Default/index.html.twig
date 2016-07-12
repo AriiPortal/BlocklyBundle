@@ -1,59 +1,68 @@
 {% extends "AriiBlocklyBundle::layout.html.twig" %}
 {% block body %}
-<!--
-20
-65
-120
-160
-210
-230
-260
-290
-330
--->
+{% set color_job=10 %}
+{% set color_chain=30 %}
+{% set color_nested=50 %}
+{% set color_params=70 %}
+{% set color_triggers=90 %}
+{% set color_schedule=110 %}
+{% set color_agent=130 %}
+{% set color_lock=150 %}
+{% set color_agent=170 %}
+{% set color_lib=190 %}
+{% set color_monitor=210 %}
+{% set color_misc=230 %}
 <div id="blocklyDiv"  style="height: 100%; width: 100%;"></div>
 <div id="blocklyArea"></div>
     <xml id="toolbox" style="display: none">
-    <category name="Job" colour="10">
+    <category name="Job" colour="{{ color_job }}">
       <block type="standalone"></block>
       <block type="script"></block>
-      <block type="process_class"></block>
     </category>
-    <category name="Job Chain" colour="40">
+    <category name="Job Chain" colour="{{ color_chain }}">
 		<block type="job"></block>
       <block type="job_chain"></block>
       <block type="job_chain_node"></block>
     </category>
-    <category name="Nested chains" colour="70">
+    <category name="Nested chains" colour="{{ color_nested }}">
 		<block type="nested_chain"></block>
 		<block type="job_chain_node_job_chain"></block>
     </category>
-    <category name="Params" colour="100">
-		<block type="param"></block>
-		<block type="params"></block>
-		<block type="script_param"></block>
-	</category>
-    <category name="Triggers" colour="130">
-		<block type="order"></block>
-		<block type="file_order_source"></block>
-	</category>
-    <category name="Schedule"colour="160">
-      <block type="run_time"></block>
+    <category name="Params" colour="{{ color_params }}">
+        <block type="param"></block>
+        <block type="params"></block>
+        <block type="script_param"></block>
+    </category>
+    <category name="Orders" colour="{{ color_triggers }}">
+        <block type="order"></block>
+        <block type="file_order_source"></block>
+    </category>
+    <category name="Schedule"colour="{{ color_schedule }}">
       <block type="at"></block>
       <block type="date"></block>
-<!--      <block type="weekdays"></block>  -->
+      <block type="run_time"></block>
       <block type="weekday"></block>
-<!--      <block type="monthdays"></block>  -->
       <block type="monthday"></block>
       <block type="month"></block>
       <block type="ultimos"></block>
       <block type="holidays"></block>      
     </category>
-    <category name="Lock"colour="190">
+    <category name="Lock"colour="{{ color_lock }}">
       <block type="lock"></block>
       <block type="lock_use"></block>
     </category>
-    <category name="Misc"colour="210">
+    <category name="Agent"colour="{{ color_agent }}">
+      <block type="process_class"></block>
+    </category>
+<!--
+    <category name="Job lib"colour="{{ color_lib }}">
+        <block type="ssh"></block>
+    </category>
+    <category name="Monitor"colour="{{ color_monitor }}">
+        <block type="event"></block>
+    </category>
+-->
+    <category name="Misc"colour="{{ color_misc }}">
 	  <block type="text"></block>
       <block type="include"></block>
     </category>
@@ -134,7 +143,7 @@ Blockly.Blocks['standalone'] = {
         .appendField(new Blockly.FieldTextInput(""), "WARN_IF_SHORTER_THAN");
     this.setPreviousStatement(false, null);
     this.setNextStatement(false, null);
-    this.setColour(10);
+    this.setColour({{ color_job }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/job.xml');
   }
@@ -201,7 +210,7 @@ Blockly.Blocks['script'] = {
         .appendField("file");
     this.setPreviousStatement(true, null);
     this.setNextStatement(false, null);
-    this.setColour(10);
+    this.setColour({{ color_job }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -253,7 +262,7 @@ Blockly.Blocks['process_class'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(false, null);
     this.setNextStatement(false, null);
-    this.setColour(10);
+    this.setColour({{ color_agent }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/process_classes.xml');
   }
@@ -331,7 +340,7 @@ Blockly.Blocks['job'] = {
         .appendField(new Blockly.FieldTextInput(""), "WARN_IF_SHORTER_THAN");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(40);
+    this.setColour({{ color_chain }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/job.xml');
   }
@@ -419,7 +428,7 @@ Blockly.Blocks['job_chain'] = {
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("distributed")
         .appendField(new Blockly.FieldCheckbox("FALSE"), "DISTRIBUTED");
-    this.setColour(40);		
+    this.setColour({{ color_chain }});		
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/job_chain.xml');
   }
@@ -484,7 +493,7 @@ Blockly.Blocks['job_chain_node'] = {
         .appendField(new Blockly.FieldTextInput(""), "DELAY");
 	this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(40);
+    this.setColour({{ color_chain }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/job_chain.xml#element_job_chain_node');
   }
@@ -535,7 +544,7 @@ Blockly.Blocks['order'] = {
         .appendField("run_time");
 	this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(130);
+    this.setColour({{ color_triggers }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -551,7 +560,48 @@ Blockly.JobScheduler['order'] = function(block) {
   return code;
 };
 
+Blockly.Blocks['file_order_source'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("file order source");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("directory")
+        .appendField(new Blockly.FieldTextInput(""), "DIRECTORY");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("regex")
+        .appendField(new Blockly.FieldTextInput("\\.txt$"), "REGEX");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("repeat")
+        .appendField(new Blockly.FieldTextInput("30"), "REPEAT");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("delay_after_error")
+        .appendField(new Blockly.FieldTextInput(""), "DELAY_AFTER_ERROR");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("max")
+        .appendField(new Blockly.FieldTextInput(""), "MAX");
+	this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour({{ color_triggers }});
+    this.setTooltip('{{ color_triggers }}');
+    this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/file_order_source.xml');
+  }
+};
 
+Blockly.JobScheduler['file_order_source'] = function(block) {
+  var text_directory = block.getFieldValue('DIRECTORY');
+  var text_regex = block.getFieldValue('REGEX');
+  var text_repeat = block.getFieldValue('REPEAT');
+  var text_delay_after_error = block.getFieldValue('DELAY_AFTER_ERROR');
+  var text_max = block.getFieldValue('MAX');
+  // TODO: Assemble JavaScript into code variable.
+  var code = '...;\n';
+  return code;
+};
 /* 
 ===========================================================================
 	NESTED CHAINS (160)
@@ -599,7 +649,7 @@ Blockly.Blocks['nested_chain'] = {
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("distributed")
         .appendField(new Blockly.FieldCheckbox("FALSE"), "DISTRIBUTED");
-    this.setColour(70);		
+    this.setColour({{ color_nested }});		
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/job_chain.xml');
   }
@@ -664,7 +714,7 @@ Blockly.Blocks['job_chain_node_job_chain'] = {
         .appendField(new Blockly.FieldTextInput(""), "DELAY");
 	this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(70);
+    this.setColour({{ color_nested }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/job_chain.xml#element_job_chain_node');
   }
@@ -696,7 +746,7 @@ Blockly.Blocks['script_param'] = {
         .appendField("")
 		.appendField(new Blockly.FieldVariable("param"), "NAME");
     this.setOutput(true, null);
-    this.setColour(160);
+    this.setColour({{ color_params }});
     this.setTooltip('');
     this.setHelpUrl('');
   }
@@ -729,7 +779,7 @@ Blockly.Blocks['params'] = {
         .appendField("include");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_params }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/params.xml');
   }
@@ -753,7 +803,7 @@ Blockly.Blocks['param'] = {
         .appendField(new Blockly.FieldTextInput(""), "VALUE");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_params }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -780,7 +830,7 @@ Blockly.Blocks['include'] = {
         .appendField("include")
         .appendField(new Blockly.FieldTextInput("file"), "LIVE_FILE");
     this.setOutput(true, null);
-    this.setColour(290);
+    this.setColour({{ color_misc }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/include.xml');
   }
@@ -800,7 +850,7 @@ Blockly.Blocks['text'] = {
 		.appendField("")
         .appendField(new Blockly.FieldTextInput("text"), "TEXT");
     this.setOutput(true, null);
-    this.setColour(290);
+    this.setColour({{ color_misc }});
     this.setTooltip('free text');
     this.setHelpUrl('');
   }
@@ -814,8 +864,6 @@ Blockly.JobScheduler['text'] = function(block) {
 		code += value_more;
   return [code, Blockly.JobScheduler.ORDER_NONE];
 };
-
-
 
 // https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#q3j7o3
 Blockly.Blocks['start_when_directory_changed'] = {
@@ -832,7 +880,7 @@ Blockly.Blocks['start_when_directory_changed'] = {
         .appendField(new Blockly.FieldTextInput(""), "REGEX");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(290);
+    this.setColour({{ color_misc }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -865,7 +913,7 @@ Blockly.Blocks['delay_order_after_setback'] = {
         .appendField(new Blockly.FieldTextInput(""), "SETBACk_COUNT");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(290);
+    this.setColour({{ color_misc }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -893,7 +941,7 @@ Blockly.Blocks['lock_use'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(330);
+    this.setColour({{ color_lock }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -919,7 +967,7 @@ Blockly.Blocks['lock'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(false, null);
     this.setNextStatement(false, null);
-    this.setColour(330);
+    this.setColour({{ color_lock }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/lock.xml');
   }
@@ -1016,7 +1064,7 @@ Blockly.Blocks['run_time'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/run_time.xml');
   }
@@ -1077,7 +1125,7 @@ Blockly.Blocks['at'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/at.xml');
   }
@@ -1126,7 +1174,7 @@ Blockly.Blocks['period'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/period.xml');
   }
@@ -1166,7 +1214,7 @@ Blockly.Blocks['date'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/date.xml');
   }
@@ -1247,7 +1295,7 @@ Blockly.Blocks['weekday'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -1327,7 +1375,7 @@ Blockly.Blocks['month'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -1363,7 +1411,7 @@ Blockly.Blocks['monthday'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -1393,7 +1441,7 @@ Blockly.Blocks['ultimos'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -1428,7 +1476,7 @@ Blockly.Blocks['holidays'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -1453,7 +1501,7 @@ Blockly.Blocks['holiday'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/date.xml');
   }

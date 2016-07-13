@@ -1,23 +1,30 @@
 {% extends "AriiBlocklyBundle::layout.html.twig" %}
 {% block body %}
-{% set color_job=10 %}
-{% set color_chain=30 %}
-{% set color_nested=50 %}
-{% set color_params=70 %}
-{% set color_triggers=90 %}
-{% set color_schedule=110 %}
-{% set color_agent=130 %}
-{% set color_lock=150 %}
-{% set color_agent=170 %}
-{% set color_lib=190 %}
-{% set color_monitor=210 %}
-{% set color_misc=230 %}
+{% set color_action=5 %}
+{% set color_job=25 %}
+{% set color_chain=45 %}
+{% set color_nested=65 %}
+{% set color_params=85 %}
+{% set color_triggers=105 %}
+{% set color_schedule=125 %}
+{% set color_agent=145 %}
+{% set color_lock=165 %}
+{% set color_agent=185 %}
+{% set color_monitor=205 %}
+{% set color_command=225 %}
+{% set color_misc=245 %}
 <div id="blocklyDiv"  style="height: 100%; width: 100%;"></div>
 <div id="blocklyArea"></div>
+
     <xml id="toolbox" style="display: none">
-    <category name="Job" colour="{{ color_job }}">
+    <category name="Actions"colour="{{ color_action }}">
+        <block type="script"></block>
+<!--
+        <block type="ssh"></block>
+-->
+    </category>        
+    <category name="Jobs" colour="{{ color_job }}">
       <block type="standalone"></block>
-      <block type="script"></block>
     </category>
     <category name="Job Chain" colour="{{ color_chain }}">
 		<block type="job"></block>
@@ -54,14 +61,9 @@
     <category name="Agent"colour="{{ color_agent }}">
       <block type="process_class"></block>
     </category>
-<!--
-    <category name="Job lib"colour="{{ color_lib }}">
-        <block type="ssh"></block>
-    </category>
     <category name="Monitor"colour="{{ color_monitor }}">
         <block type="event"></block>
     </category>
--->
     <category name="Misc"colour="{{ color_misc }}">
 	  <block type="text"></block>
       <block type="include"></block>
@@ -210,7 +212,7 @@ Blockly.Blocks['script'] = {
         .appendField("file");
     this.setPreviousStatement(true, null);
     this.setNextStatement(false, null);
-    this.setColour({{ color_job }});
+    this.setColour({{ color_action }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -1599,6 +1601,16 @@ dhtmlxEvent(window,"load",function(){
                 },
                 cancel: "{{ "No" | trans }}",
                 ok: "{{ "Yes" | trans }}" });
+                break;
+            case 'deploy':
+                var code = Blockly.JobScheduler.workspaceToCode(workspace);
+                dhx4.ajax.post("{{ url('arii_Blockly_deploy') }}","code="+encodeURIComponent(code),function(loader,response){
+                    dhtmlx.message({
+                    type: "Notice",
+                    expire: 10000,
+                    width: "500px",
+                    text: loader.xmlDoc.responseText });
+                });                
                 break;
             default:
                 alert(itemid);

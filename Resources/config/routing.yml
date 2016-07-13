@@ -40,3 +40,7 @@ xml_Blockly_toolbar_check:
     pattern:  /toolbar_check.xml
     defaults: { _controller: AriiBlocklyBundle:Default:toolbar_check }
 
+# Deploy
+arii_Blockly_deploy:
+    pattern:  /deploy
+    defaults: { _controller: AriiBlocklyBundle:Default:deploy }

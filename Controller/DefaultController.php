@@ -76,7 +76,18 @@ class DefaultController extends Controller
         $request = Request::createFromGlobals();
         $code = $request->get('code');
         print $this->split($code,'C:\Program Files\jobscheduler\pgsql\scheduler_data\config\live\blockly');        
-        exit();        
+        exit();
+    }
+
+    public function deployAction()
+    {        
+        $request = Request::createFromGlobals();
+        $code = $request->get('code');
+        
+        $ojs = $this->container->get('arii_blockly.jobscheduler');
+        $live = $ojs->getLive();
+        print $this->split($code,$live);        
+        exit();
     }
     
     public function split($code,$target) {

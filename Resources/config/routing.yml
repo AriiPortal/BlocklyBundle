@@ -30,6 +30,11 @@ arii_Blockly_generate:
     pattern:  /generate
     defaults: { _controller: AriiBlocklyBundle:Default:generate }
 
+# Deploy
+arii_Blockly_edit:
+    pattern:  /edit
+    defaults: { _controller: AriiBlocklyBundle:Default:edit }
+
 # CHECK 
 
 arii_Blockly_check:
@@ -40,6 +45,15 @@ xml_Blockly_toolbar_check:
     pattern:  /toolbar_check.xml
     defaults: { _controller: AriiBlocklyBundle:Default:toolbar_check }
 
+# Scripts
+arii_Blockly_scripts:
+    pattern:  /scripts
+    defaults: { _controller: AriiBlocklyBundle:Scripts:index }
+
+xml_Blockly_scripts_list:
+    pattern:  /scripts/list.xml
+    defaults: { _controller: AriiBlocklyBundle:Scripts:list }
+    
 # Deploy
 arii_Blockly_deploy:
     pattern:  /deploy

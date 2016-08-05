@@ -1,22 +1,116 @@
 {% extends "AriiBlocklyBundle::layout.html.twig" %}
 {% block body %}
-{% set color_action=5 %}
-{% set color_job=25 %}
-{% set color_chain=45 %}
-{% set color_nested=65 %}
-{% set color_params=85 %}
-{% set color_triggers=105 %}
-{% set color_schedule=125 %}
-{% set color_agent=145 %}
-{% set color_lock=165 %}
+{% set color_job=5 %}
+{% set color_action=30 %}
+{% set color_chain=55 %}
+{% set color_nested=80 %}
+{% set color_params=105 %}
+{% set color_triggers=135 %}
+{% set color_schedule=160 %}
 {% set color_agent=185 %}
-{% set color_monitor=205 %}
-{% set color_command=225 %}
-{% set color_misc=245 %}
+{% set color_lock=210 %}
+{% set color_agent=235 %}
+{% set color_monitor=260 %}
+{% set color_command=285 %}
+{% set color_misc=315 %}
+{% set color_script=340 %}
 <div id="blocklyDiv"  style="height: 100%; width: 100%;"></div>
 <div id="blocklyArea"></div>
-
-    <xml id="toolbox" style="display: none">
+<xml id="toolbox" style="display: none">
+{% if level == 1 %} 
+    <category name="Jobs" colour="{{ color_job }}">
+        <block type="standalone"></block>
+        <block type="job"></block>
+        <category name="Actions"colour="{{ color_action }}">
+            <block type="script"></block>
+        </category>                
+        <category name="Lib"colour="{{ color_script }}">
+        {% for script in scripts %}
+            <block type="USER_{{ script.label }}"></block>
+        {% endfor %}
+        </category>
+    </category>
+    <category name="Chain" colour="{{ color_chain }}">
+      <block type="job_chain"></block>
+      <block type="job_chain_node"></block>
+    </category>      
+    <category name="Params" colour="{{ color_params }}">
+        <block type="param"></block>
+        <block type="params"></block>
+        <block type="script_param"></block>
+    </category>
+    <category name="Schedule" colour="{{ color_schedule }}">
+      <block type="at"></block>
+      <block type="date"></block>
+      <block type="period"></block>
+      <block type="run_time"></block>
+      <block type="weekdays"></block>
+      <block type="monthdays"></block>
+      <block type="month"></block>
+      <block type="ultimos"></block>
+      <block type="schedule"></block>
+      <category name="Date/Time">
+          <block type="weekday"></block>
+          <block type="monthday"></block>      
+      </category> 
+      <category name="Holidays">
+          <block type="holidays"></block>
+      </category> 
+    </category>
+    <category name="Lock"colour="{{ color_lock }}">
+      <block type="lock"></block>
+      <block type="lock_use"></block>
+    </category>
+    <category name="Agent"colour="{{ color_agent }}">
+      <block type="process_class"></block>
+    </category>
+{% elseif level == 'level2' %}    
+    <category name="Actions"colour="{{ color_action }}">
+        <block type="script"></block>
+    </category>        
+    <category name="Jobs" colour="{{ color_job }}">
+      <block type="standalone"></block>
+    </category>
+    <category name="Job Chain" colour="{{ color_chain }}">
+		<block type="job"></block>
+      <block type="job_chain"></block>
+      <block type="job_chain_node"></block>
+    </category>
+    <category name="Params" colour="{{ color_params }}">
+        <block type="param"></block>
+        <block type="params"></block>
+        <block type="script_param"></block>
+    </category>
+    <category name="Orders" colour="{{ color_triggers }}">
+        <block type="order"></block>
+        <block type="file_order_source"></block>
+    </category>
+    <category name="Schedule" colour="{{ color_schedule }}">
+      <block type="at"></block>
+      <block type="date"></block>
+      <block type="period"></block>
+      <block type="run_time"></block>
+      <block type="weekdays"></block>
+      <block type="monthdays"></block>
+      <block type="month"></block>
+      <block type="ultimos"></block>
+      <block type="schedule"></block>
+      <category name="Date/Time">
+          <block type="weekday"></block>
+          <block type="monthday"></block>      
+      </category> 
+      <category name="Holidays">
+          <block type="holidays"></block>
+      </category> 
+    </category>
+    <category name="Lock"colour="{{ color_lock }}">
+      <block type="lock"></block>
+      <block type="lock_use"></block>
+    </category>
+    <category name="Agent"colour="{{ color_agent }}">
+      <block type="process_class"></block>
+    </category>
+{% else %}
     <category name="Actions"colour="{{ color_action }}">
         <block type="script"></block>
 <!--
@@ -44,15 +138,23 @@
         <block type="order"></block>
         <block type="file_order_source"></block>
     </category>
-    <category name="Schedule"colour="{{ color_schedule }}">
+    <category name="Schedule" colour="{{ color_schedule }}">
       <block type="at"></block>
       <block type="date"></block>
+      <block type="period"></block>
       <block type="run_time"></block>
-      <block type="weekday"></block>
-      <block type="monthday"></block>
+      <block type="weekdays"></block>
+      <block type="monthdays"></block>
       <block type="month"></block>
       <block type="ultimos"></block>
-      <block type="holidays"></block>      
+      <block type="schedule"></block>
+      <category name="Date/Time">
+          <block type="weekday"></block>
+          <block type="monthday"></block>      
+      </category> 
+      <category name="Holidays">
+          <block type="holidays"></block>
+      </category> 
     </category>
     <category name="Lock"colour="{{ color_lock }}">
       <block type="lock"></block>
@@ -68,12 +170,7 @@
 	  <block type="text"></block>
       <block type="include"></block>
     </category>
-<!--	
-    <category name="Commands"colour="240">
-    </category>
-    <category name="Jobs Lib"colour="270">
-    </category>
--->
+{% endif %}
   </xml>
 <script language="javascript">
 var blocklyArea;
@@ -85,8 +182,7 @@ var workspace;
 	JOB SIMPLE
 =========================================================================== 
 */
-
-	// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#mrrzai
+// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#mrrzai
 Blockly.Blocks['standalone'] = {
   init: function() {
     this.appendDummyInput()
@@ -148,7 +244,7 @@ Blockly.Blocks['standalone'] = {
     this.setColour({{ color_job }});
     this.setTooltip('');
     this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/job.xml');
-  }
+  }      
 };
 
 Blockly.JobScheduler['standalone'] = function(block) {
@@ -193,102 +289,14 @@ Blockly.JobScheduler['standalone'] = function(block) {
   return code;
 };
 
-// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#6jhdvs
-Blockly.Blocks['script'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("script");
-    this.appendDummyInput()
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("language")
-        .appendField(new Blockly.FieldDropdown([["unix shell", "shell"], ["windows command", "bat"],["javascript", "javascript"], ["perlscript", "perlscript"]]), "LANGUAGE");
-    this.appendValueInput("INCLUDE_PARAMS")
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("code")
-        .appendField(new Blockly.FieldTextInput(""), "CODE");
-    this.appendValueInput("INCLUDE_FILE")
-        .setCheck(null)
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("file");
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(false, null);
-    this.setColour({{ color_action }});
-    this.setTooltip('');
-    this.setHelpUrl('http://www.example.com/');
-  }
-};
-
-Blockly.JobScheduler['script'] = function(block) {
-  var text_code = block.getFieldValue('CODE');
-  var dropdown_name = block.getFieldValue('LANGUAGE');
-  var value_name = Blockly.JobScheduler.valueToCode(block, 'FILE', Blockly.JobScheduler.ORDER_ATOMIC);
-  var value_script_param = Blockly.JobScheduler.valueToCode(block, 'INCLUDE_PARAMS', Blockly.JobScheduler.ORDER_NONE);
-  var value_include_file = Blockly.JobScheduler.valueToCode(block, 'INCLUDE_FILE', Blockly.JobScheduler.ORDER_NONE);
-  var code =  '<script  language="';
-	if (dropdown_name=='bat')
-		code += 'shell';
-	else
-		code += dropdown_name;
-	code += '">\n';
-	code += value_include_file ;
-	code += '<![CDATA[';
-	code += text_code;
-	if (value_script_param!='') {
-		switch (dropdown_name) {
-			case 'bat':
-				code += ' %SCHEDULER_PARAM_'+value_script_param.trim().toUpperCase()+'%';
-				break;
-			case 'shell':
-				code += ' ${SCHEDULER_PARAM_'+value_script_param.trim().toUpperCase()+'}';
-				break;
-			default:
-				code += value_script_param;
-		}
-	}
-	code +=']]>\n';
-	code += '<\/script>\n';
-  return code;
-};
-
-// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#ij2gzm
-Blockly.Blocks['process_class'] = {
-  init: function() {
-    this.appendDummyInput()
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("process_class")
-        .appendField(new Blockly.FieldVariable("localhost"), "PROCESS_CLASS");
-    this.appendDummyInput()
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("max_processes")
-        .appendField(new Blockly.FieldTextInput("3"), "MAX_PROCESSES");
-    this.setInputsInline(false);
-    this.setPreviousStatement(false, null);
-    this.setNextStatement(false, null);
-    this.setColour({{ color_agent }});
-    this.setTooltip('');
-    this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/process_classes.xml');
-  }
-};
-
-Blockly.JobScheduler['process_class'] = function(block) {
-  var variable_process_class = Blockly.JobScheduler.variableDB_.getName(block.getFieldValue('PROCESS_CLASS'), Blockly.Variables.NAME_TYPE)
-  var text_max_processes = block.getFieldValue('MAX_PROCESSES');
-  var code = '<process_class name="'+variable_process_class+'" max_processes="'+text_max_processes+'"/>\n';
-  return code;
-};
-
-/* 
-===========================================================================
-	JOB CHAIN
-=========================================================================== 
-*/
-
 // https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#mrrzai
 Blockly.Blocks['job'] = {
   init: function() {
     this.appendDummyInput()
         .appendField("Job")
         .appendField(new Blockly.FieldVariable("job"), "JOB");
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("title")
@@ -388,6 +396,95 @@ Blockly.JobScheduler['job'] = function(block) {
   return code;
 };
 
+// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#6jhdvs
+Blockly.Blocks['script'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("Script")
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField(new Blockly.FieldDropdown([["unix shell", "shell"], ["windows command", "bat"],["javascript", "javascript"], ["perlscript", "perlscript"]]), "LANGUAGE");
+    this.appendValueInput("INCLUDE_PARAMS")
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("code")
+        .appendField(new Blockly.FieldTextInput(""), "CODE");
+{% if level>1 %}
+    this.appendValueInput("INCLUDE_FILE")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("file");
+{% endif %}
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(false, null);
+    this.setColour({{ color_action }});
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+Blockly.JobScheduler['script'] = function(block) {
+  var text_code = block.getFieldValue('CODE');
+  var dropdown_name = block.getFieldValue('LANGUAGE');
+  var value_name = Blockly.JobScheduler.valueToCode(block, 'FILE', Blockly.JobScheduler.ORDER_ATOMIC);
+  var value_script_param = Blockly.JobScheduler.valueToCode(block, 'INCLUDE_PARAMS', Blockly.JobScheduler.ORDER_NONE);
+{% if level>1 %}var value_include_file = Blockly.JobScheduler.valueToCode(block, 'INCLUDE_FILE', Blockly.JobScheduler.ORDER_NONE);{% endif %}
+  var code =  '<script  language="';
+	if (dropdown_name=='bat')
+		code += 'shell';
+	else
+		code += dropdown_name;
+	code += '">\n';
+{% if level>1 %}code += value_include_file ;{% endif %}
+	code += '<![CDATA[';
+	code += text_code;
+	if (value_script_param!='') {
+		switch (dropdown_name) {
+			case 'bat':
+				code += ' %SCHEDULER_PARAM_'+value_script_param.trim().toUpperCase()+'%';
+				break;
+			case 'shell':
+				code += ' ${SCHEDULER_PARAM_'+value_script_param.trim().toUpperCase()+'}';
+				break;
+			default:
+				code += value_script_param;
+		}
+	}
+	code +=']]>\n';
+	code += '<\/script>\n';
+  return code;
+};
+
+// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#ij2gzm
+Blockly.Blocks['process_class'] = {
+  init: function() {
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("process_class")
+        .appendField(new Blockly.FieldVariable("localhost"), "PROCESS_CLASS");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("max_processes")
+        .appendField(new Blockly.FieldTextInput("3"), "MAX_PROCESSES");
+    this.setInputsInline(false);
+    this.setPreviousStatement(false, null);
+    this.setNextStatement(false, null);
+    this.setColour({{ color_agent }});
+    this.setTooltip('');
+    this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/process_classes.xml');
+  }
+};
+
+Blockly.JobScheduler['process_class'] = function(block) {
+  var variable_process_class = Blockly.JobScheduler.variableDB_.getName(block.getFieldValue('PROCESS_CLASS'), Blockly.Variables.NAME_TYPE)
+  var text_max_processes = block.getFieldValue('MAX_PROCESSES');
+  var code = '<process_class name="'+variable_process_class+'" max_processes="'+text_max_processes+'"/>\n';
+  return code;
+};
+
+/* 
+===========================================================================
+	JOB CHAIN
+=========================================================================== 
+*/
 // https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#g6bsxw
 Blockly.Blocks['job_chain'] = {
   init: function() {
@@ -1147,8 +1244,8 @@ Blockly.Blocks['period'] = {
         .appendField("period");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("absolute_period")
-        .appendField(new Blockly.FieldTextInput(""), "ABSOLUTE_PERIOD");
+        .appendField("absolute_repeat")
+        .appendField(new Blockly.FieldTextInput(""), "ABSOLUTE_REPEAT");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("begin")
@@ -1183,15 +1280,29 @@ Blockly.Blocks['period'] = {
 };
 
 Blockly.JobScheduler['period'] = function(block) {
-  var text_absolute_period = block.getFieldValue('ABSOLUTE_PERIOD');
+  var text_absolute_repeat = block.getFieldValue('ABSOLUTE_REPEAT');
   var text_begin = block.getFieldValue('BEGIN');
   var text_end = block.getFieldValue('END');
   var checkbox_let_run = block.getFieldValue('LET_RUN') == 'TRUE';
   var text_repeat = block.getFieldValue('REPEAT');
   var text_single_start = block.getFieldValue('SINGLE_START');
   var dropdown_when_holiday = block.getFieldValue('WHEN_HOLIDAY');
-  // TODO: Assemble JavaScript into code variable.
-  var code = '...;\n';
+  var code = '<period\n';
+    if (text_begin!='')
+        code += '   begin="'+text_begin+'"\n';
+    if (text_end!='')
+        code += '   end="'+text_end+'"\n';
+    if (checkbox_let_run!='')
+        code += '   let_run="'+checkbox_let_run+'"\n';
+    if (text_absolute_repeat!='')
+        code += '   absolute_repeat="'+text_absolute_repeat+'"\n';
+    if (text_repeat!='')
+        code += '   repeat="'+text_repeat+'"\n';
+    if (text_single_start!='')
+        code += '   single_start="'+text_single_start+'"\n';
+    if (dropdown_when_holiday!='')
+        code += '   when_holiday="'+dropdown_when_holiday+'"\n';        
+        code += '/>\n';
   return code;
 };
 
@@ -1227,8 +1338,13 @@ Blockly.JobScheduler['date'] = function(block) {
   var text_begin = block.getFieldValue('BEGIN');
   var text_end = block.getFieldValue('END');
   var statements_period = Blockly.JobScheduler.statementToCode(block, 'PERIOD');
-  // TODO: Assemble JavaScript into code variable.
-  var code = '...;\n';
+  var code = '<date\n';
+    if (text_date!='')
+        code += '   date="'+text_date+'"\n';
+    if (text_begin!='')
+        code += '   begin="'+text_begin+'"\n';
+    code += statements_period;
+    code += '/>\n';
   return code;
 };
 
@@ -1244,7 +1360,7 @@ Blockly.Blocks['weekdays'] = {
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
-    this.setColour(160);
+    this.setColour({{ color_schedule }});
     this.setTooltip('');
     this.setHelpUrl('http://www.example.com/');
   }
@@ -1252,8 +1368,9 @@ Blockly.Blocks['weekdays'] = {
 
 Blockly.JobScheduler['weekdays'] = function(block) {
   var statements_weekday = Blockly.JobScheduler.statementToCode(block, 'WEEKDAY');
-  // TODO: Assemble JavaScript into code variable.
-  var code = '...;\n';
+  var code = '<weekdays>\n';
+    code += statements_weekday;
+    code += '</weekdays>\n';
   return code;
 };
 
@@ -1515,6 +1632,57 @@ Blockly.JobScheduler['holiday'] = function(block) {
   return code;
 };
 
+// Liste des scripts
+{% for script in scripts %}
+
+// https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#6jhdvs
+Blockly.Blocks['USER_{{ script.label }}'] = {
+  init: function() {
+    this.appendValueInput("script_param")
+        .appendField("Script")
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField(new Blockly.FieldTextInput("{{ script.file }}"), "CODE");
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(false, null);
+    this.setColour({{ color_action }});
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+Blockly.JobScheduler['USER_{{ script.label }}'] = function(block) {
+  var text_code = block.getFieldValue('CODE');
+  var value_script_param = Blockly.JobScheduler.valueToCode(block, 'INCLUDE_PARAMS', Blockly.JobScheduler.ORDER_NONE);
+  var code =  '<script  language="';
+        switch ("{{ script.lang }}") {
+                case 'bat':
+                case 'shell':
+                        code += 'shell';
+                        break;
+                default:
+                        code += '{{ script.lang }}';
+        }
+	code += '">\n';
+	code += '<![CDATA[';
+	code += Base64.decode("{{ script.code }}");
+	if (value_script_param!='') {
+		switch ("{{ script.lang }}") {
+			case 'bat':
+				code += ' %SCHEDULER_PARAM_'+value_script_param.trim().toUpperCase()+'%';
+				break;
+			case 'shell':
+				code += ' ${SCHEDULER_PARAM_'+value_script_param.trim().toUpperCase()+'}';
+				break;
+			default:
+				code += value_script_param;
+		}
+	}
+	code +=']]>\n';
+	code += '<\/script>\n';
+  return code;
+};
+{% endfor %}
+
 dhtmlxEvent(window,"load",function(){
     
     globalLayout = new dhtmlXLayoutObject(document.body,"3W");  
@@ -1528,10 +1696,15 @@ dhtmlxEvent(window,"load",function(){
 
     myRibbon = globalLayout.cells("a").attachRibbon(); 
     myRibbon.setIconPath( "{{ asset('/bundles/ariicore/images/ribbon/') }}" );
-    myRibbon.loadStruct("{{ url('json_Blockly_ribbon') }}");
+    myRibbon.loadStruct("{{ url('json_Blockly_ribbon') }}", function() {
+        myRibbon.setItemState("1", false);
+        myRibbon.setItemState("2", false);
+        myRibbon.setItemState("3", false);
+        myRibbon.setItemState("{{ level }}",true)
+    });
     myRibbon.attachEvent("onStateChange", StateRibbon );
     myRibbon.attachEvent("onClick", ClickRibbon );
-
+            
     myGridToolbar = globalLayout.cells("b").attachToolbar();
     myGridToolbar.setIconsPath("{{ asset('bundles/ariicore/images/toolbar/') }}");
     myGridToolbar.loadStruct( "{{ url('xml_Blockly_toolbar') }}");
@@ -1579,7 +1752,8 @@ dhtmlxEvent(window,"load",function(){
                 var xml = Blockly.Xml.domToText( Blockly.Xml.workspaceToDom(Blockly.mainWorkspace));
                 var code = Blockly.JobScheduler.workspaceToCode(workspace);
                 name = this.getValue('name');
-                dhx4.ajax.post("{{ url('arii_Blockly_save') }}","name=JobScheduler/"+encodeURIComponent(name)+"&xml="+encodeURIComponent(xml)+"&code="+encodeURIComponent(code),function(loader,response){
+                // alert("{{ url('arii_Blockly_save') }}?name="+encodeURIComponent(name)+"&xml="+encodeURIComponent(xml)+"&code="+encodeURIComponent(code));
+                dhx4.ajax.post("{{ url('arii_Blockly_save') }}","name="+encodeURIComponent(name)+"&xml="+encodeURIComponent(xml)+"&code="+encodeURIComponent(code),function(loader,response){
                     dhtmlx.message({
                     type: "Notice",
                     expire: 10000,
@@ -1604,7 +1778,8 @@ dhtmlxEvent(window,"load",function(){
                 break;
             case 'deploy':
                 var code = Blockly.JobScheduler.workspaceToCode(workspace);
-                dhx4.ajax.post("{{ url('arii_Blockly_deploy') }}","code="+encodeURIComponent(code),function(loader,response){
+                // alert("{{ url('arii_Blockly_deploy') }}?name="+encodeURIComponent(name)+"&code="+encodeURIComponent(code));
+                dhx4.ajax.post("{{ url('arii_Blockly_deploy') }}","name="+encodeURIComponent(name)+"&code="+encodeURIComponent(code),function(loader,response){
                     dhtmlx.message({
                     type: "Notice",
                     expire: 10000,
@@ -1638,8 +1813,10 @@ dhtmlxEvent(window,"load",function(){
     myGrid.attachEvent("onRowDblClicked", function(id){
         myGridToolbar.setValue('name',id );
         globalLayout.cells("b").progressOff();
+        // alert("{{ url('xml_Blockly_get') }}?name="+encodeURIComponent(id));
         dhx4.ajax.post("{{ url('xml_Blockly_get') }}","name="+encodeURIComponent(id),function(loader,response){
             var xml = Blockly.Xml.textToDom(loader.xmlDoc.responseText);
+            // alert(loader.xmlDoc.responseText);
             workspace.clear();
             Blockly.Xml.domToWorkspace(xml, workspace);
             

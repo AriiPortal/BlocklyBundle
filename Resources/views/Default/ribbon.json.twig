@@ -7,12 +7,27 @@
           "list":
           [
              {   "type": "button", 
+                  "id": "index",
                  text:"", 
                  "isbig": true, 
                  "img": "48/blockly.png"
-              }             
-           ]
+              },
+             {   type: "button", tooltip: "{{ "Scripts" | trans }}", img: "script.png", id: "scripts" },
+             {   type: "button", tooltip: "{{ "Edit" | trans }}", img: "plugin.png", id: "edit" },
+             {   type: "button", tooltip: "{{ "Deploy" | trans }}", img: "go.png", id: "deploy" }            
+          ]
+      },
+      {   "type":"block", 
+          text:"{{ "Edit" | trans }}", 
+          "text_pos": "bottom", 
+          "list":
+          [
+             {   type: "buttonTwoState", text:"{{ "Newbie" | trans }}", img: "level1.png", id: "1" },
+             {   type: "buttonTwoState", text:"{{ "Medium" | trans }}", img: "level2.png", id: "2" },
+             {   type: "buttonTwoState", text:"{{ "Expert" | trans }}", img: "level3.png", id: "3" }
+          ]
       }
+      
    ]
 }
 /*

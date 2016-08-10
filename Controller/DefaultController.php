@@ -10,6 +10,8 @@ class DefaultController extends Controller
 {
     public function indexAction()
     {
+        return $this->editAction(1);
+        
         $level = 1;
         return $this->render('AriiBlocklyBundle:Default:index.html.twig', array('level' => $level, 'scripts'=> array()) );
     }

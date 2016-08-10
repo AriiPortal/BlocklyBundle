@@ -1,3 +1,22 @@
 module.Blockly: Blockly
 summary.Blockly: Module de conception graphique basé sur Blockly.
 text.Blockly: Blockly est un projet Google qui offre une interface de type scratch en Javascript.
+Holiday: Jour férié
+Holidays: Jours fériés
+Let run: Sans interruption
+Run time: Heure d exécution
+Single start: Heure simple
+When holiday: Si le jour est férié
+Suppress job: Supprimer l exécution
+Ignore holiday: Excuter le job
+Previous non holiday: Exécuter le jour ouvré précédent
+Next non holiday: Exécuter le jour ouvré suivant
+Warn if longer than: Alerte si plus long que
+Warn if shorter than: Alerte si plus court que
+Setback: Reprise
+Commands: Commandes
+Tasks: Tâches
+Cyclic: Cyclique
+Begin: Début
+End: Fin
+Repeat: Répétition

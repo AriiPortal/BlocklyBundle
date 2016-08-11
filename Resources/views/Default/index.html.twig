@@ -1,13 +1,19 @@
 {% extends "AriiBlocklyBundle::layout.html.twig" %}
 {% block body %}
 {% set color_job=5 %}
+{% set color_shell=15 %}
+{% set color_user=25 %}
 {% set color_action=30 %}
 {% set color_chain=55 %}
 {% set color_nested=80 %}
 {% set color_params=105 %}
 {% set color_triggers=135 %}
 {% set color_schedule=160 %}
-{% set color_agent=185 %}
+{% set color_runtime=165 %}
+{% set color_time=170 %}
+{% set color_date=175 %}
+{% set color_days=180 %}
+{% set color_holidays=185 %}
 {% set color_lock=210 %}
 {% set color_agent=235 %}
 {% set color_monitor=260 %}
@@ -19,13 +25,13 @@
 <xml id="toolbox" style="display: none">
     <category name="{{ "Jobs" | trans }}" colour="{{ color_job }}">
         <block type="standalone"></block>
-        <category name="{{ "Shell scripts" | trans }}" colour="{{ color_action }}">
+        <category name="{{ "Shell scripts" | trans }}" colour="{{ color_shell }}">
             <block type="script"></block>
         </category>                
 <!--        <category name="{{ "Integrated jobs" | trans }}"colour="{{ color_action }}">
             <block type="ssh"></block>            
         </category>                
--->        <category name="{{ "User jobs" | trans }}" colour="{{ color_script }}">
+-->        <category name="{{ "User jobs" | trans }}" colour="{{ color_user}}">
         {% for script in scripts %}
             <block type="USER_{{ script.label }}"></block>
         {% endfor %}
@@ -50,30 +56,32 @@
         <block type="file_order_source"></block>
     </category>
 {% endif %}                
-    <category name="Schedule" colour="{{ color_schedule }}">
+    <category name="{{ "Schedule" | trans }}" colour="{{ color_schedule }}">
         <block type="schedule"></block>
         <block type="run_time.schedule"></block>
         <block type="run_time.single"></block>
         <block type="run_time.repeat"></block>
+        <block type="run_time.days"></block>
+        <block type="run_time.months"></block>
 {%if level > 1 %}        
         <block type="run_time.once"></block>
 {% endif %}
 {%if level > 2 %}                
         <block type="run_time.free"></block>
 {% endif %}        
-      <category name="{{ "Time" | trans }}">
+      <category name="{{ "Time" | trans }}" colour="{{ color_time }}">
             <block type="at"></block>
-            <block type="single_start"></block>
-            <block type="period"></block>
+            <block type="period.single_start"></block>
+            <block type="period.repeat"></block>
       </category> 
-      <category name="{{ "Date" | trans }}">
+      <category name="{{ "Date" | trans }}" colour="{{ color_date }}">
         <block type="date"></block>
-        <block type="run_time.months"></block>
       </category> 
-      <category name="{{ "Days" | trans }}">
+      <category name="{{ "Days" | trans }}" colour="{{ color_days }}">
             <block type="weekdays"></block>
             <block type="monthdays"></block>
             <block type="ultimos"></block>
+            <block type="specific_weekdays"></block>
       </category> 
 {% if level > 2 %}
         <category name="{{ "Advanced" | trans }}">
@@ -81,28 +89,31 @@
           <block type="monthday"></block>      
       </category> 
 {% endif %}
-      <category name="Holidays">
+      <category name="Holidays"  colour="{{ color_holidays }}">
           <block type="holidays"></block>
+          <block type="holiday"></block>
       </category> 
     </category>
-    <category name="Params" colour="{{ color_params }}">
+    <category name="{{ "Parameters" | trans }}" colour="{{ color_params }}">
         <block type="param"></block>
 {%if level > 1 %}
     <block type="params"></block>
 {% endif %}
         <block type="script_param"></block>
     </category>
-    <category name="Lock"colour="{{ color_lock }}">
+    <category name="{{ "Lock" | trans }}" colour="{{ color_lock }}">
       <block type="lock"></block>
       <block type="lock_use"></block>
     </category>
-    <category name="Agent"colour="{{ color_agent }}">
+    <category name="{{ "Agent" | trans }}" colour="{{ color_agent }}">
       <block type="process_class"></block>
     </category>
-    <category name="Monitor"colour="{{ color_monitor }}">
+{%if level > 1 %}
+    <category name="{{ "Monitor" | trans }} "colour="{{ color_monitor }}">
         <block type="event"></block>
     </category>
-    <category name="Misc"colour="{{ color_misc }}">
+{% endif %}
+    <category name="{{ "Misc" | trans }}" colour="{{ color_misc }}">
 	  <block type="text"></block>
       <block type="include"></block>
     </category>
@@ -134,7 +145,7 @@ Blockly.Blocks['standalone'] = {
         .appendField(new Blockly.FieldTextInput(""), "DESCRIPTION");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("{{ "Target" | trans }}")
+        .appendField("{{ "Agent" | trans }}")
         .appendField(new Blockly.FieldVariable("localhost"), "PROCESS_CLASS");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
@@ -403,12 +414,20 @@ Blockly.Blocks['process_class'] = {
   init: function() {
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("process_class")
+        .appendField("{{ "Process class" | trans }}")
         .appendField(new Blockly.FieldVariable("localhost"), "PROCESS_CLASS");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("max_processes")
+        .appendField("{{ "Max processes" | trans }}")
         .appendField(new Blockly.FieldTextInput("3"), "MAX_PROCESSES");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Host" | trans }}")
+        .appendField(new Blockly.FieldTextInput("localhost"), "HOST");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Port" | trans }}")
+        .appendField(new Blockly.FieldTextInput("44444"), "PORT");
     this.setInputsInline(false);
     this.setPreviousStatement(false, null);
     this.setNextStatement(false, null);
@@ -421,7 +440,11 @@ Blockly.Blocks['process_class'] = {
 Blockly.JobScheduler['process_class'] = function(block) {
   var variable_process_class = Blockly.JobScheduler.variableDB_.getName(block.getFieldValue('PROCESS_CLASS'), Blockly.Variables.NAME_TYPE)
   var text_max_processes = block.getFieldValue('MAX_PROCESSES');
-  var code = '<process_class name="'+variable_process_class+'" max_processes="'+text_max_processes+'"/>\n';
+  var text_host = block.getFieldValue('HOST');
+  var text_port = block.getFieldValue('PORT');  
+  var code = FileStart(variable_process_class,'process_class');
+    code += '<process_class name="'+variable_process_class+'" max_processes="'+text_max_processes+'" remote_scheduler="'+text_host+':'+text_port+'">\n';
+    code += FileEnd(variable_process_class,'process_class');
   return code;
 };
 
@@ -842,7 +865,7 @@ Blockly.JobScheduler['params'] = function(block) {
 Blockly.Blocks['param'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("param")
+        .appendField("{{ "Parameter" | trans }}")
         .appendField(new Blockly.FieldVariable("param"), "NAME")
         .appendField(new Blockly.FieldTextInput(""), "VALUE");
     this.setPreviousStatement(true, null);
@@ -871,7 +894,7 @@ Blockly.JobScheduler['param'] = function(block) {
 Blockly.Blocks['include'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("include")
+        .appendField("{{ "Include" | trans }}")
         .appendField(new Blockly.FieldTextInput("file"), "LIVE_FILE");
     this.setOutput(true, null);
     this.setColour({{ color_misc }});
@@ -977,11 +1000,11 @@ Blockly.JobScheduler['delay_order_after_setback'] = function(block) {
 Blockly.Blocks['lock_use'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("lock.use")
+        .appendField("{{ "Lock use" | trans }}")
         .appendField(new Blockly.FieldVariable("lock"), "LOCK");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("exclusive")
+        .appendField("{{ "Exclusive" | trans }}")
         .appendField(new Blockly.FieldCheckbox("TRUE"), "EXCLUSIVE");
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
@@ -1003,11 +1026,11 @@ Blockly.JobScheduler['lock_use'] = function(block) {
 Blockly.Blocks['lock'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("lock")
+        .appendField("{{ "Lock" | trans }}")
         .appendField(new Blockly.FieldVariable("lock"), "NAME");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("max_non_exclusive")
+        .appendField("{{ "Max non exclusive" | trans }}")
         .appendField(new Blockly.FieldTextInput("3"), "MAX_NON_EXCLUSIVE");
     this.setInputsInline(false);
     this.setPreviousStatement(false, null);
@@ -1036,48 +1059,48 @@ Blockly.JobScheduler['lock'] = function(block) {
 Blockly.Blocks['schedule'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("schedule")
+        .appendField("{{ "Schedule" | trans }}")
         .appendField(new Blockly.FieldVariable("schedule"), "NAME");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("substitute")
+        .appendField("{{ "Substitute" | trans }}")
         .appendField(new Blockly.FieldVariable(" "), "SUBSTITUTE");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("valid_from")
+        .appendField("{{ "Valid from" | trans }}")
         .appendField(new Blockly.FieldTextInput(""), "VALID_FROM");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("valid_to")
+        .appendField("{{ "Valid to" | trans }}")
         .appendField(new Blockly.FieldTextInput(""), "VALID_TO");
     this.appendStatementInput("AT")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("at");
+        .appendField("{{ "At" | trans }}");
     this.appendStatementInput("DATE")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("date");
+        .appendField("{{ "Date" | trans }}");
     this.appendStatementInput("MONTH")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("month");
+        .appendField("{{ "Months" | trans }}");
     this.appendStatementInput("WEEKDAYS")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("weekdays");
+        .appendField("{{ "Week days" | trans }}");
     this.appendStatementInput("MONTHDAYS")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("monthdays");
+        .appendField("{{ "Month days" | trans }}");
     this.appendStatementInput("ULTIMOS")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("ultimos");
+        .appendField("{{ "Ultimos" | trans }}");
     this.appendStatementInput("HOLIDAYS")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("holidays");
+        .appendField("{{ "Holidays" | trans }}");
     this.setInputsInline(false);
     this.setColour({{ color_schedule }});
     this.setTooltip('');
@@ -1135,7 +1158,7 @@ Blockly.Blocks['run_time.single'] = {
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("{{ "When holiday" | trans }}")
-        .appendField(new Blockly.FieldDropdown([["{{ "Suppress job" | trans }}", "suppress"], ["Ignore holiday", "ignore_holiday"], ["Previous non holiday", "previous_non_holiday"], ["Next non holiday", "next_non_holiday"]]), "WHEN_HOLIDAY");
+        .appendField(new Blockly.FieldDropdown([["{{ "Suppress job" | trans }}", "suppress"], ["{{ "Ignore holiday" | trans }}", "ignore_holiday"], ["{{ "Previous non holiday" | trans }}", "previous_non_holiday"], ["{{ "Next non holiday" | trans }}", "next_non_holiday"]]), "WHEN_HOLIDAY");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("{{ "Let run" | trans }}")
@@ -1154,12 +1177,42 @@ Blockly.JobScheduler['run_time.single'] = function(block) {
   var text_single_start = block.getFieldValue('SINGLE_START');
   var text_time_zone = block.getFieldValue('TIME_ZONE');
   var dropdown_when_holiday = block.getFieldValue('WHEN_HOLIDAY');
+  var statements_holidays = Blockly.JobScheduler.statementToCode(block, 'HOLIDAYS');  
   var code = '<run_time\n';
 	code += '	let_run="'+(checkbox_let_run?'yes':'no')+'"\n';
         code += '	single_start="'+text_single_start+'"\n';
 	code += '	time_zone="'+text_time_zone+'"\n';
-	code += '	when_holiday="'+dropdown_when_holiday+'"\n';
-	code += '/>\n';
+	code += '	when_holiday="'+dropdown_when_holiday+'">\n';
+        code += statements_holidays;
+	code += '</run_time>\n';
+  return code;
+};
+
+Blockly.Blocks['run_time.days'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("{{ "Run time" | trans }} ({{ "Days" | trans }})");
+    this.appendStatementInput("DAYS")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Days" | trans }}");
+    this.setInputsInline(false);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour({{ color_schedule }});
+    this.setTooltip('');
+    this.setHelpUrl('http://www.sos-berlin.com/doc/en/scheduler.doc/xml/run_time.xml');
+  }
+};
+
+Blockly.JobScheduler['run_time.days'] = function(block) {
+    var checkbox_let_run = block.getFieldValue('LET_RUN') == 'TRUE';
+    var statements_days = Blockly.JobScheduler.statementToCode(block, 'DAYS');  
+    var code = '<run_time\n';
+	code += '	let_run="'+(checkbox_let_run?'yes':'no')+'"\n';
+	code += '>\n';
+        code += statements_days;
+        code += '</run_time>\n';
   return code;
 };
 
@@ -1449,10 +1502,10 @@ Blockly.JobScheduler['run_time.once'] = function(block) {
 Blockly.Blocks['run_time.schedule'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("run_time");
+        .appendField("{{ "Run time" | trans }}");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("schedule")
+        .appendField("{{ "Schedule" | trans }}")
         .appendField(new Blockly.FieldVariable("schedule"), "SCHEDULE");
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
@@ -1496,21 +1549,21 @@ Blockly.JobScheduler['at'] = function(block) {
 };
 
 // https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#s2824a
-Blockly.Blocks['single_start'] = {
+Blockly.Blocks['period.single_start'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("period");
+        .appendField("{{ "Period" | trans }} ({{ "Simple" | trans }})");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("start time")
+        .appendField("{{ "Start time" | trans }}")
         .appendField(new Blockly.FieldTextInput("00:00:00"), "START_TIME");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("when_holiday")
+        .appendField("{{ "When holiday" | trans }}")
         .appendField(new Blockly.FieldDropdown([["suppress", "suppress"], ["ignore_holiday", "ignore_holiday"], ["previous_non_holiday", "previous_non_holiday"], ["next_non_holiday", "next_non_holiday"]]), "WHEN_HOLIDAY");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("let_run")
+        .appendField("{{ "Let run" | trans }}")
         .appendField(new Blockly.FieldCheckbox("TRUE"), "LET_RUN");
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
@@ -1521,7 +1574,7 @@ Blockly.Blocks['single_start'] = {
   }
 };
 
-Blockly.JobScheduler['single_start'] = function(block) {
+Blockly.JobScheduler['period.single_start'] = function(block) {
   var text_start_time = block.getFieldValue('START_TIME');
   var checkbox_let_run = block.getFieldValue('LET_RUN') == 'TRUE';
   var dropdown_when_holiday = block.getFieldValue('WHEN_HOLIDAY');
@@ -1537,33 +1590,33 @@ Blockly.JobScheduler['single_start'] = function(block) {
 
 
 // https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#s2824a
-Blockly.Blocks['period'] = {
+Blockly.Blocks['period.repeat'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("period");
+        .appendField("{{ "Period" | trans }}");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("Interval")
+        .appendField("{{ "Interval" | trans }}")
         .appendField(new Blockly.FieldDropdown([["End/Start", "REPEAT"], ["Start/Start", "ABSOLUTE_REPEAT"]]), "REPEAT_TYPE");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("repeat")
+        .appendField("{{ "repeat" | trans }}")
         .appendField(new Blockly.FieldTextInput("00:00:00"), "REPEAT");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("begin")
+        .appendField("{{ "Begin" | trans }}")
         .appendField(new Blockly.FieldTextInput("00:00:00"), "BEGIN");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("end")
+        .appendField("{{ "End" | trans }}")
         .appendField(new Blockly.FieldTextInput("23:59:59"), "END");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("when_holiday")
+        .appendField("{{ "When holiday" | trans }}")
         .appendField(new Blockly.FieldDropdown([["suppress", "suppress"], ["ignore_holiday", "ignore_holiday"], ["previous_non_holiday", "previous_non_holiday"], ["next_non_holiday", "next_non_holiday"]]), "WHEN_HOLIDAY");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("let_run")
+        .appendField("{{ "Let run" | trans }}")
         .appendField(new Blockly.FieldCheckbox("TRUE"), "LET_RUN");
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);
@@ -1574,7 +1627,7 @@ Blockly.Blocks['period'] = {
   }
 };
 
-Blockly.JobScheduler['period'] = function(block) {
+Blockly.JobScheduler['period.repeat'] = function(block) {
   var dropdown_start_type = block.getFieldValue('REPEAT_TYPE');
   var text_start_time = block.getFieldValue('REPEAT');
   var text_begin = block.getFieldValue('BEGIN');
@@ -1720,13 +1773,6 @@ Blockly.Blocks['weekdays'] = {
 };
 
 Blockly.JobScheduler['weekdays'] = function(block) {
-  var checkbox_1 = block.getFieldValue('1') == 'TRUE';
-  var checkbox_2 = block.getFieldValue('2') == 'TRUE';
-  var checkbox_3 = block.getFieldValue('3') == 'TRUE';
-  var checkbox_4 = block.getFieldValue('4') == 'TRUE';
-  var checkbox_5 = block.getFieldValue('5') == 'TRUE';
-  var checkbox_6 = block.getFieldValue('6') == 'TRUE';
-  var checkbox_0 = block.getFieldValue('0') == 'TRUE';
   var statements_period = Blockly.JobScheduler.statementToCode(block, 'PERIOD');
     var Days = [];    
     ['0','1','2','3','4','5','6'].forEach(function(i) {
@@ -1738,6 +1784,43 @@ Blockly.JobScheduler['weekdays'] = function(block) {
 	code += statements_period;
 	code += '</day>\n';
         code += '</weekdays>\n';
+  return code;
+};
+
+Blockly.Blocks['specific_weekdays'] = {
+  init: function() {
+    this.appendDummyInput()
+        .appendField("{{ "Specific weekday" | trans }}");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Day" | trans }}")
+        .appendField(new Blockly.FieldDropdown( [["{{ "Monday" | trans }}", "1"],  ["{{ "Tuesday" | trans }}", "2"], [ "{{ "Wednesday" | trans }}", "3"],[ "{{ "Thursday" | trans }}", "4"], ["{{ "Friday" | trans }}", "5"], ["{{ "Saturday" | trans }}", "6"], [ "{{ "Sunday" | trans }}", "7"]]), "DAY");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Place" | trans }}")
+        .appendField(new Blockly.FieldDropdown([["{{ "First" | trans }}", "1"], ["{{ "Second" | trans }}", "2"], ["{{ "Third" | trans }}", "3"], ["{{ "Fourth" | trans }}", "4"], ["{{ "Last" | trans }}", "-1"], ["{{ "Second last" | trans }}", "-2"], ["{{ "Third last" | trans }}", "-3"], ["{{ "Fourth last" | trans }}", "-4"]]), "WHICH");
+    this.appendStatementInput("PERIOD")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Period" | trans }}");
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setColour({{ color_schedule }});
+    this.setTooltip('');
+    this.setHelpUrl('http://www.example.com/');
+  }
+};
+
+Blockly.JobScheduler['specific_weekdays'] = function(block) {
+  var dropdown_day = block.getFieldValue('DAY');
+  var dropdown_which = block.getFieldValue('WHICH');
+  var statements_period = Blockly.JobScheduler.statementToCode(block, 'PERIOD');
+  var code = '<monthdays>\n';
+        code += '<weekday day="'+dropdown_day+'" which="'+dropdown_which+'">\n';
+        code += statements_period;
+        code += '</weekday>\n';
+        code += '</monthdays>\n';
   return code;
 };
 
@@ -1830,7 +1913,7 @@ Blockly.JobScheduler['months'] = function(block) {
 Blockly.Blocks['run_time.months'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("{{ "run_time" | trans }} ({{ "Months" | trans }})");
+        .appendField("{{ "Run time" | trans }} ({{ "Months" | trans }})");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("{{ "January" | trans }}")
@@ -1882,11 +1965,7 @@ Blockly.Blocks['run_time.months'] = {
     this.appendStatementInput("DAYS")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("{{ "Days" | trans }}");
-    this.appendStatementInput("PERIOD")
-        .setCheck(null)
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("Period");
+        .appendField("{{ "Days/Time" | trans }}");
     this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
@@ -1906,7 +1985,6 @@ Blockly.JobScheduler['run_time.months'] = function(block) {
   var statements_days = Blockly.JobScheduler.statementToCode(block, 'DAYS');
   var code = '<run_time>';
         code += '<month month="'+Months.join(' ')+'">\n';
-	code += statements_period;
 	code += statements_days;        
 	code += '</month>\n';
         code += '</run_time>\n';
@@ -1916,16 +1994,19 @@ Blockly.JobScheduler['run_time.months'] = function(block) {
 Blockly.Blocks['monthdays'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("{{ "monthday" | trans }}");
-    this.appendDummyInput()
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("1")
-        .appendField(new Blockly.FieldCheckbox("FALSE"), "1");
+        .appendField("{{ "Month days" | trans }}");
+    var i;
+    for(i=1;i<32;i++) {
+        this.appendDummyInput()
+            .setAlign(Blockly.ALIGN_RIGHT)
+            .appendField(i.toString())
+            .appendField(new Blockly.FieldCheckbox("FALSE"), i.toString());
+    }
     this.appendStatementInput("PERIOD")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("period");
-    this.setInputsInline(false);
+        .appendField("{{ "Period" | trans }}");
+    this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour({{ color_schedule }});
@@ -1937,25 +2018,35 @@ Blockly.Blocks['monthdays'] = {
 Blockly.JobScheduler['monthdays'] = function(block) {
   var checkbox_1 = block.getFieldValue('1') == 'TRUE';
   var statements_period = Blockly.JobScheduler.statementToCode(block, 'PERIOD');
-  var code = '<day day="1">\n';
+  var Days = [];    
+    for(i=1;i<32;i++) {
+        if (block.getFieldValue(i.toString()) == 'TRUE') 
+            Days.push(i.toString());
+    }
+  var code = '<monthdays>\n'
+        code += '<day day="'+Days.join(' ')+'">\n';
 	code += statements_period;
 	code += '</day>\n';
+	code += '</monthdays>\n';
   return code;
 };
 
 Blockly.Blocks['ultimos'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("monthday");
-    this.appendDummyInput()
-        .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("1")
-        .appendField(new Blockly.FieldCheckbox("FALSE"), "1");
+        .appendField("{{ "Ultimos" | trans }}");
+    var i;
+    for(i=1;i<32;i++) {
+        this.appendDummyInput()
+            .setAlign(Blockly.ALIGN_RIGHT)
+            .appendField(i.toString())
+            .appendField(new Blockly.FieldCheckbox("FALSE"), i.toString());
+    }
     this.appendStatementInput("PERIOD")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("period");
-    this.setInputsInline(false);
+        .appendField("{{ "Period" | trans }}");
+    this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour({{ color_schedule }});
@@ -1967,30 +2058,63 @@ Blockly.Blocks['ultimos'] = {
 Blockly.JobScheduler['ultimos'] = function(block) {
   var checkbox_1 = block.getFieldValue('1') == 'TRUE';
   var statements_period = Blockly.JobScheduler.statementToCode(block, 'PERIOD');
-  var code = '<day day="1">\n';
+  var Days = [];    
+    for(i=1;i<32;i++) {
+        if (block.getFieldValue(i.toString()) == 'TRUE') 
+            Days.push(i.toString());
+    }  
+  var code = '<ultimos>\n'
+        code += '<day day="'+Days.join(' ')+'">\n';
 	code += statements_period;
 	code += '</day>\n';
+	code += '</ultimos>\n';
   return code;
+
 };
+
 
 // https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#rjf6jw
 Blockly.Blocks['holidays'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("holidays");
-    this.appendStatementInput("WEEKDAYS")
-        .setCheck(null)
+        .appendField("{{ "Holidays" | trans }}");
+    this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("weekdays");
+        .appendField("{{ "Monday" | trans }}")
+        .appendField(new Blockly.FieldCheckbox("FALSE"), "1");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Tuesday" | trans }}")
+        .appendField(new Blockly.FieldCheckbox("FALSE"), "2");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Wednesday" | trans }}")
+        .appendField(new Blockly.FieldCheckbox("FALSE"), "3");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Thursday" | trans }}")
+        .appendField(new Blockly.FieldCheckbox("FALSE"), "4");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Friday" | trans }}")
+        .appendField(new Blockly.FieldCheckbox("FALSE"), "5");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Saturday" | trans }}")
+        .appendField(new Blockly.FieldCheckbox("FALSE"), "6");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Sunday" | trans }}")
+        .appendField(new Blockly.FieldCheckbox("FALSE"), "0");
     this.appendStatementInput("HOLIDAY")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("holiday");
+        .appendField("{{ "Dates" | trans }}");
     this.appendValueInput("INCLUDE")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("include");
-    this.setInputsInline(false);
+    this.setInputsInline(true);
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setColour({{ color_schedule }});
@@ -2000,20 +2124,27 @@ Blockly.Blocks['holidays'] = {
 };
 
 Blockly.JobScheduler['holidays'] = function(block) {
-  var statements_weekdays = Blockly.JobScheduler.statementToCode(block, 'WEEKDAYS');
   var statements_holiday = Blockly.JobScheduler.statementToCode(block, 'HOLIDAY');
   var value_include = Blockly.JobScheduler.valueToCode(block, 'INCLUDE', Blockly.JobScheduler.ORDER_NONE);
+    var Days = [];    
+    ['0','1','2','3','4','5','6'].forEach(function(i) {
+        if (block.getFieldValue(i) == 'TRUE') 
+            Days.push(i);
+    });
   var code = '<holidays>\n';
-  code += statements_holiday;
-  code += value_include; 
-  code += '</holidays>\n';
+    code += '<weekdays>\n';
+    code += '<day day="'+Days.join(' ')+'"/>\n';
+    code += '</weekdays>\n';
+    code += statements_holiday;
+    code += value_include; 
+    code += '</holidays>\n';
   return code;
 };
 
 Blockly.Blocks['holiday'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("date")
+        .appendField("{{ "Date" | trans }}")
         .appendField(new Blockly.FieldTextInput(""), "DATE");
     this.setInputsInline(false);
     this.setPreviousStatement(true, null);

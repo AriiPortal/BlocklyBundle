@@ -4,11 +4,11 @@ text.Blockly: Blockly est un projet Google qui offre une interface de type scrat
 Holiday: Jour férié
 Holidays: Jours fériés
 Let run: Sans interruption
-Run time: Heure d exécution
+Run time: Heure de lancement
 Single start: Heure simple
 When holiday: Si le jour est férié
 Suppress job: Supprimer l exécution
-Ignore holiday: Excuter le job
+Ignore holiday: Ignorer le jour férié
 Previous non holiday: Exécuter le jour ouvré précédent
 Next non holiday: Exécuter le jour ouvré suivant
 Warn if longer than: Alerte si plus long que
@@ -20,3 +20,29 @@ Cyclic: Cyclique
 Begin: Début
 End: Fin
 Repeat: Répétition
+Days: Jours
+Days/Time: Jours/Heure
+Ultimos: Fins de mois
+Schedule: Planification
+User jobs: Mes jobs
+Shell scripts: Scripts Shell
+Holidays: Jours fériés
+First: Premier
+Last: Dernier
+Second: Second
+Third: Troisième
+Fourth: Quatrième
+Second last: Avant-dernier
+Third last: Antépénultième
+Fourth last: Avant-antépénultième
+Parameter: Paramètre
+Parameters: Paramètres
+Lock: Verrou
+Locks: Verrous
+Lock use: Verrou
+Misc: Divers
+Process class: Agent
+Exclusive: Exclusif
+Max non exclusive: Quantité
+Max processes: Exécutions simultanées
+Include: Fichier

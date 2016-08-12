@@ -46,3 +46,12 @@ Exclusive: Exclusif
 Max non exclusive: Quantité
 Max processes: Exécutions simultanées
 Include: Fichier
+Newbie: Débutant
+Medium: Moyen
+Expert: Expert
+Next state: Si succès
+Error state: Si erreur
+File sink: Purge de fichier
+End node: Fin de chaîne
+Go to: Aller à
+File order source: Fichiers déclencheurs

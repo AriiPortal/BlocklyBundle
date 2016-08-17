@@ -23,8 +23,9 @@ class DefaultController extends Controller
             $level = $request->get('level');
         
         // recuperation des scripts
+        $session = $this->container->get('arii_core.session');
+        $basedir = $this->getBaseDir();
         $folder = $this->container->get('arii_core.folder');
-        $basedir = $this->container->getParameter('workspace').'/Blockly/JobScheduler';
         $Files = $folder->FilesList($basedir ,'',array('*','!code','!xml'));
         $Scripts = array();
         foreach ($Files as $file) {
@@ -103,8 +104,8 @@ class DefaultController extends Controller
         $xml = $request->get('xml');
         $code = $request->get('code');
 
-        $root = $this->container->getParameter('workspace').'/Blockly/JobScheduler';
-        
+        $root = $this->getBaseDir();
+       
         // Creation de l'arborescence
         $Paths = explode('/',$name);
         $filename = array_pop($Paths);
@@ -182,8 +183,8 @@ class DefaultController extends Controller
     {
         $request = Request::createFromGlobals();
         $name = $request->get('name');
-        
-        $file = $this->container->getParameter('workspace').'/Blockly/JobScheduler/'.$name.'.xml';
+
+        $file = $this->getBaseDir().'/'.$name.'.xml';
 
         $response = new Response();
         $response->headers->set('Content-Type', 'text/xml');
@@ -199,8 +200,7 @@ class DefaultController extends Controller
         $list .= '<rows>';        
        
         $folder = $this->container->get('arii_core.folder');
-        $basedir = $this->container->getParameter('workspace').'/Blockly/JobScheduler';
-        $Files = $folder->FilesList($basedir ,'',array('xml'));
+        $Files = $folder->FilesList($this->getBaseDir() ,'',array('xml'));
 
         foreach ($Files as $file) {
             $f = substr($file,0,strlen($file)-4);
@@ -218,7 +218,7 @@ class DefaultController extends Controller
         $name = $request->get('name');
         $output = $request->get('format');
         
-        $file = $this->container->getParameter('workspace').'/Blockly/'.$name.".xml";
+        $file = $this->getBaseDir().'/'.$name.".xml";
         $response = new Response();
         $response->headers->set('Content-Type', 'text/xml');
         
@@ -230,6 +230,9 @@ class DefaultController extends Controller
         $response->setContent( $generator->generate( $array ) );
         return $response;    
     }
-   
-    
+
+    private function getBaseDir() {
+        $session = $this->container->get('arii_core.session');
+        return $session->get('workspace').'/Blockly/JobScheduler';    
+    }
 }

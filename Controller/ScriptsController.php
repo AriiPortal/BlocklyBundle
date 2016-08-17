@@ -22,7 +22,7 @@ class ScriptsController extends Controller
         $list .= '<rows>';        
        
         $folder = $this->container->get('arii_core.folder');
-        $basedir = $this->container->getParameter('workspace').'/Blockly/JobScheduler';
+        $basedir = $this->getBaseDir();
         $Files = $folder->FilesList($basedir ,'',array('*','!code','!xml'));
 
         foreach ($Files as $file) {
@@ -33,6 +33,10 @@ class ScriptsController extends Controller
         $response->setContent( $list );
         return $response;        
     }
-    
+
+    private function getBaseDir() {
+        $session = $this->container->get('arii_core.session');
+        return $session->get('workspace').'/Blockly/JobScheduler';    
+    }
     
 }

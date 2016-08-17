@@ -135,6 +135,8 @@ var workspace;
 	JOB SIMPLE
 =========================================================================== 
 */
+var current_job_chain = '';
+
 // https://blockly-demo.appspot.com/static/demos/blockfactory/index.html#mrrzai
 Blockly.Blocks['job'] = {
   init: function() {
@@ -175,6 +177,10 @@ Blockly.Blocks['job'] = {
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("{{ "Commands" | trans }}");
+    this.appendDummyInput()
+        .appendField("{{ "Standalone" | trans }}")
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField(new Blockly.FieldCheckbox("TRUE"), "STANDALONE");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("{{ "Tasks" | trans }}")
@@ -489,6 +495,7 @@ Blockly.Blocks['job.run_time'] = {
 };
 Blockly.JobScheduler['job'] = function(block) {
   var variable_job = Blockly.JobScheduler.variableDB_.getName(block.getFieldValue('JOB'), Blockly.Variables.NAME_TYPE);
+  var checkbox_standalone = (block.getFieldValue('STANDALONE') == 'TRUE'?'no':'yes');
   var text_title = block.getFieldValue('TITLE');
   var text_description = block.getFieldValue('DESCRIPTION');
   var value_description = Blockly.JobScheduler.valueToCode(block, 'DESCRIPTION', Blockly.JobScheduler.ORDER_NONE);
@@ -509,7 +516,7 @@ Blockly.JobScheduler['job'] = function(block) {
   var code = FileStart(variable_job,'job');
         code += '<job name="'+variable_job+'"\n'
 		+'title="'+text_title+'"\n'
-		+'order="no"\n';
+		+'order="'+checkbox_standalone+'"\n';
 		+'tasks="'+text_tasks+'"\n';
 		+'warn_if_longer_than="'+text_warn_if_longer_than+'"\n';
 		+'warn_if_shorter_than="'+text_warn_if_shorter_than+'"\n';
@@ -647,21 +654,21 @@ Blockly.JobScheduler['process_class'] = function(block) {
 Blockly.Blocks['job_chain'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("job_chain")
+        .appendField("{{ "Job chain" | trans }}")
         .appendField(new Blockly.FieldTextInput("job_chain"), "name");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("title")
+        .appendField("{{ "Title" | trans }}")
         .appendField(new Blockly.FieldTextInput(""), "TITLE");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("process_class")
+        .appendField("{{ "Process_class" | trans }}")
         .appendField(new Blockly.FieldVariable("localhost"), "PROCESS_CLASS");
     this.appendStatementInput("ORDERS")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("{{ "Orders" | trans }}");
-    this.appendStatementInput("{{ "File order source" | trans }}")
+    this.appendStatementInput("FILE_ORDER_SOURCE")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField("{{ "File order source" | trans }}");
@@ -689,11 +696,13 @@ Blockly.Blocks['job_chain'] = {
 
 Blockly.JobScheduler['job_chain'] = function(block) {
   var text_name = block.getFieldValue('name');
+  current_job_chain = text_name;
   var text_title = block.getFieldValue('title');
   var text_max_orders = block.getFieldValue('max_orders');
   var variable_process_class = Blockly.JobScheduler.variableDB_.getName(block.getFieldValue('PROCESS_CLASS'), Blockly.Variables.NAME_TYPE)
   var statements_file_order_source = Blockly.JobScheduler.statementToCode(block, 'file_order_source');
   var statements_nodes = Blockly.JobScheduler.statementToCode(block, 'NODES');
+  var statements_orders = Blockly.JobScheduler.statementToCode(block, 'ORDERS');
   var next = statements_nodes.split(' -->\n');
   var name_next_state = next.shift().trim().substr(10);
   var checkbox_distributed = block.getFieldValue('DISTRIBUTED') == 'TRUE';
@@ -712,6 +721,9 @@ Blockly.JobScheduler['job_chain'] = function(block) {
 	code += next.join(' -->\n');
 	code += '</job_chain>\n';
         code += FileEnd(text_name,'job_chain');
+        code += '\n';
+        code += statements_orders;
+        current_job_chain = '';
   return code;
 };
 
@@ -759,8 +771,12 @@ Blockly.JobScheduler['job_chain_node'] = function(block) {
   var dropdown_on_error = block.getFieldValue('ON_ERROR');
   var next = statements_next_state.split(' -->\n');
   var name_next_state = next.shift().trim().substr(10);
+  if (name_next_state=='')
+      name_next_state='SUCCESS';
   var error = statements_error_state.split(' -->\n');
   var name_error_state = error.shift().trim().substr(10);
+  if (name_next_state=='')
+      name_next_state='FAILURE';
   var code = '<!-- STEP '+name+' -->\n'
         code += '<job_chain_node\n';
 		code += '	state="'+name+'"\n';
@@ -920,24 +936,33 @@ Blockly.JobScheduler['sink_node'] = function(block) {
 Blockly.Blocks['order'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("order");
+        .appendField("{{ "Order" | trans }}")
+        .appendField(new Blockly.FieldTextInput(""), "ID");
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("title")
+        .appendField("{{ "Title" | trans }}")
         .appendField(new Blockly.FieldTextInput(""), "TITLE");
+    this.appendStatementInput("RUN_TIME")
+        .setCheck(null)
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "Run time" | trans }}");
+	this.setPreviousStatement(true, null);
     this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("priority")
+        .appendField("{{ "Priority" | trans }}")
         .appendField(new Blockly.FieldTextInput(""), "PRIORITY");
     this.appendStatementInput("PARAMS")
         .setCheck(null)
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("params");
-    this.appendStatementInput("RUN_TIME")
-        .setCheck(null)
+        .appendField("{{ "Parameters" | trans }}");
+    this.appendDummyInput()
         .setAlign(Blockly.ALIGN_RIGHT)
-        .appendField("run_time");
-	this.setPreviousStatement(true, null);
+        .appendField("{{ "Start state" | trans }}")
+        .appendField(new Blockly.FieldTextInput(""), "START_STATE");
+    this.appendDummyInput()
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField("{{ "End state" | trans }}")
+        .appendField(new Blockly.FieldTextInput(""), "END_STATE");
     this.setNextStatement(true, null);
     this.setColour({{ color_triggers }});
     this.setTooltip('');
@@ -946,12 +971,20 @@ Blockly.Blocks['order'] = {
 };
 
 Blockly.JobScheduler['order'] = function(block) {
+  var text_id = block.getFieldValue('ID');
   var text_title = block.getFieldValue('TITLE');
+  var text_start_state = block.getFieldValue('START_STATE');
+  var text_end_state = block.getFieldValue('END_STATE');
   var text_priority = block.getFieldValue('PRIORITY');
   var statements_params = Blockly.JobScheduler.statementToCode(block, 'PARAMS');
   var statements_run_time = Blockly.JobScheduler.statementToCode(block, 'RUN_TIME');
   // TODO: Assemble JavaScript into code variable.
-  var code = '...;\n';
+  var code = FileStart(current_job_chain+','+text_id,'order');
+    code += '<order>\n';
+    code += statements_run_time;
+    code += statements_params;
+    code += '</order>\n';
+    code += FileEnd(current_job_chain+','+text_id,'order');
   return code;
 };
 
